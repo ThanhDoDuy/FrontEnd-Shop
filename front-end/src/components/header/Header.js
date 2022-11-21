@@ -8,7 +8,8 @@ import {auth} from '../../firebase/config';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
-import { SET_ACTIVE_USER } from '../../redux/slice/authSlice';
+import { SET_ACTIVE_USER,REMOVE_ACTIVE_USER } from '../../redux/slice/authSlice';
+import ShowOnLogIn, { ShowOnLogout } from '../authControl/ShowControlHeader';
 
 const logo = (
   <div className={styles.logo}>
@@ -56,7 +57,7 @@ const Header = () => {
       toast.error(error.message);
     });    
   }
-
+  // Monitor the current user
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -73,9 +74,10 @@ const Header = () => {
         }))
       } else {
         setDislayName("");
+        dispatch(REMOVE_ACTIVE_USER());
       }
     });
-  },[])
+  },[displayName,dispatch])
 
   return (
     <header>
@@ -109,14 +111,18 @@ const Header = () => {
             onClick={hideMenu}
           >
             <span className={styles["links"]}>
-              <a href='/detail'>
+              <a href='/detail' style={{color: "#6D9886"}}>
                 <FaUserCircle size={16}/>
                 Hi, {displayName}
               </a>
-              <NavLink to="/login" className={activeNavLink}>Login</NavLink>
-              <NavLink to="/register" className={activeNavLink}>Register</NavLink>
-              <NavLink to="/order-history" className={activeNavLink}>My order</NavLink>
-              <NavLink to="/" onClick={logoutHandler} >Logout</NavLink>
+              <ShowOnLogout>
+                <NavLink to="/login" className={activeNavLink}>Login</NavLink>
+                <NavLink to="/register" className={activeNavLink}>Register</NavLink>
+              </ShowOnLogout>
+              <ShowOnLogIn>
+                <NavLink to="/order-history" className={activeNavLink}>My order</NavLink>
+                <NavLink to="/" onClick={logoutHandler} >Logout</NavLink>
+              </ShowOnLogIn>
             </span>
             {cart}
           </div>
