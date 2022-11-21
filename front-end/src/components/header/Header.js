@@ -7,6 +7,8 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import {auth} from '../../firebase/config';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch } from 'react-redux';
+import { SET_ACTIVE_USER } from '../../redux/slice/authSlice';
 
 const logo = (
   <div className={styles.logo}>
@@ -37,6 +39,8 @@ const Header = () => {
 
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
   const toggleMenu = () => {
     setShowMenu(!showMenu)
   }
@@ -56,9 +60,17 @@ const Header = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log(user);
         const uid = user.uid;
-        const uName = user.displayName || user.email ;
-        setDislayName(uName);
+        const uName = user.displayName || user.email.split("@")[0] ;
+        const userName = uName.charAt(0).toUpperCase() + uName.slice(1);
+        setDislayName(userName);
+        
+        dispatch(SET_ACTIVE_USER({
+          email: user.email,
+          userName: uName,
+          userID: uid,
+        }))
       } else {
         setDislayName("");
       }
@@ -97,7 +109,7 @@ const Header = () => {
             onClick={hideMenu}
           >
             <span className={styles["links"]}>
-              <a href='#'>
+              <a href='/detail'>
                 <FaUserCircle size={16}/>
                 Hi, {displayName}
               </a>
